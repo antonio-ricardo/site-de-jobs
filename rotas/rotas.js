@@ -3,33 +3,20 @@ const mongoose = require("mongoose")
 const router = express.Router()
 require("../models/jobs")
 const jobData = mongoose.model("jobs")
+const ProfileControllers = require("../Controllers/ProfileControllers")
+const ProfileData = require("../models/Profile")
 
-const profile = {
-
-    data: {
-            nome: "Tonhão",
-            salarioMensal: 3000,
-            diasPorSemana: 5,
-            horasPorDia: 5,
-            feriasPorAno: 4,
-            valorDaHora: 27
-
-        }
-
-}
 
 const Job = {
 
     data: [
     {
-        id: 1,
         nome: "Pizzaria Guloso",
         horasPorDia: 2,
         totalDeHoras: 20,
         createdAt: Date.now()
     },
     {
-        id: 2,
         nome: "OneTwo Project",
         horasPorDia: 3,
         totalDeHoras: 17,
@@ -42,15 +29,16 @@ const Job = {
         index(req, res){
             const uptadtedJob = Job.data.map((job) => {
                 const diasRestantes = Job.services.tempoRestante(job)
-                const status = diasRestantes <= 0 ? "done" : "progress"
-                    return {
+                const status = diasRestantes <= 0 ? "done" : "progress"    
+                return {
                     ...job,
+                    id: Job.services.idCalculator(job),
                     diasRestantes,
                     status,
-                    valorDoProjeto: Job.services.valorDoProjeto(profile.data.valorDaHora, job.totalDeHoras)
+                    valorDoProjeto: Job.services.valorDoProjeto(ProfileData.valorDaHora, job.totalDeHoras)
                 }
             })
-            res.render("index", {jobs: uptadtedJob, profile: profile.data})
+            res.render("index", {jobs: uptadtedJob, profile: ProfileData})
         },
 
         jobSave(req, res){
@@ -66,17 +54,7 @@ const Job = {
 
         },
 
-        profile(req,res){
-            profile.data.nome = req.body.name
-            profile.data.valorDaHora = 
-            (req.body["monthly-budget"]/(req.body["days-per-week"]*4*req.body["hours-per-day"])).toFixed(2)
-            profile.data.salarioMensal = req.body["monthly-budget"]
-            profile.data.diasPorSemana = req.body["days-per-week"]
-            profile.data.horasPorDia = req.body["hours-per-day"]
-            profile.data.feriasPorAno = req.body["vacation-per-year"]
-
-        res.redirect("/")
-        },
+        
 
         jobEditSave(req, res){
             const job = Job.data.find(job => job.id == req.params.id)
@@ -89,14 +67,13 @@ const Job = {
 
         jobEdit(req, res){
 
-            res.render("job-edit", {jobs: Job.data[req.params.id - 1], valor: Job.services.valorDoProjeto(Job.data[req.params.id - 1].totalDeHoras, profile.data.valorDaHora)})
+            res.render("job-edit", {jobs: Job.data[req.params.id - 1], valor: Job.services.valorDoProjeto(Job.data[req.params.id - 1].totalDeHoras, ProfileData.valorDaHora)})
         },
 
         jobDelete(req, res){
             const id = req.params.id
             Job.data = Job.data.filter(job =>
-            Number(job.id) !== Number(id)
-
+                Number(id) !== Number(Job.services.idCalculator(job))
             )
             res.redirect("/")
         }
@@ -116,7 +93,7 @@ const Job = {
         
             const diferençaEmMs = dataDoVencimento - Date.now()
         
-            const diferençaEmDias = Math.floor(diferençaEmMs/(1000*60*60*24))
+            const diferençaEmDias = Math.round(diferençaEmMs/(1000*60*60*24))
             
             return diferençaEmDias
         },
@@ -125,6 +102,11 @@ const Job = {
             const valorDoProjeto = (valorDaHora * totalDeHoras).toFixed(2).replace(".",",")
 
             return valorDoProjeto
+        },
+
+        idCalculator(job){
+            const id = (Number(Job.data.indexOf(job))+ 1)
+            return id
         }
 
     }
@@ -148,10 +130,10 @@ router.post("/job-edit/:id", Job.controllers.jobEditSave)
 //rotas de perfil
 router.get("/profile", (req, res) => {
     
-    res.render("profile", {profile: profile.data})
+    res.render("profile", {profile: ProfileData})
 })
 
-router.post("/profile", Job.controllers.profile)
+router.post("/profile", ProfileControllers.profile)
 
 //rotas de deleção de jobs
 router.post("/job/delete/:id", Job.controllers.jobDelete)
