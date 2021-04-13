@@ -1,24 +1,17 @@
-const mongoose = require("mongoose")
-const schema = mongoose.Schema
+let data = 
+[
+    {
+        nome: "Pizzaria Guloso",
+        horasPorDia: 2,
+        totalDeHoras: 20,
+        createdAt: Date.now()
+    },
+    {
+        nome: "OneTwo Project",
+        horasPorDia: 3,
+        totalDeHoras: 17,
+        createdAt: Date.now()
+    },
+]
 
-const Job = new schema({
-    nome: {
-        type: String,
-        require: true
-    },
-    prazo: {
-        type: String,
-        require: true
-    },
-    valor: {
-        type: Number,
-        require: true
-    },
-    processo: {
-        type: String,
-        require: true
-    }
-    
-})
-
-mongoose.model("jobs", Job)
+module.exports = data
