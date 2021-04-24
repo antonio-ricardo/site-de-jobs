@@ -3,58 +3,44 @@ const services = require("../services/JobServices")
 const ProfileData = require("../models/Profile")
 
 module.exports= {
-    index(req, res){
-        const uptadtedJob = data.map((job) => {
-            const diasRestantes = services.tempoRestante(job)
-            const status = diasRestantes <= 0 ? "done" : "progress"    
-            return {
-                ...job,
-                id: services.idCalculator(job),
-                diasRestantes,
-                status,
-                valorDoProjeto: services.valorDoProjeto(ProfileData.valorDaHora, job.totalDeHoras)
-            }
-        })
-        res.render("index", {jobs: uptadtedJob, profile: ProfileData})
-    },
+    
+    async jobSave(req, res){
 
-    jobSave(req, res){
-    const lastId = data[data.length - 1]?.id || 0
-    data.push({
-        id: lastId + 1,
-        nome: req.body.name,
-        horasPorDia: req.body["daily-hours"],
-        totalDeHoras: req.body["total-hours"],
-        createdAt: Date.now()
-})
-res.redirect("/")
+    const jobs = await data.get()
+    const lastId= jobs[jobs.length-1]?.id || 0
+
+
+    await data.create((lastId + 1), req.body.name, req.body["daily-hours"], req.body["total-hours"])
+
+    res.redirect("/")
 
     },
 
     
 
-    jobEditSave(req, res){
-        const job = data.find(job => job.id == req.params.id)
-        job.nome = req.body.name
-        job.horasPorDia = req.body["daily-hours"]
-        job.totalDeHoras = req.body["total-hours"]
+    async jobEditSave(req, res){
+     
+        data.update(
+        req.params.id,
+        req.body["name"],
+        req.body["daily-hours"],
+        req.body["total-hours"]
+        )
 
         res.redirect("/")
     },
 
-    jobEdit(req, res){
+    async jobEdit(req, res){
 
-        res.render("job-edit", {jobs: data[req.params.id - 1], valor: services.valorDoProjeto(data[req.params.id - 1].totalDeHoras, ProfileData.valorDaHora)})
+        res.render("job-edit", {jobs: (await data.get())[req.params.id - 1], valor: services.valorDoProjeto((await data.get())[req.params.id - 1].totalDeHoras, (await ProfileData.get()).valorDaHora)})
     },
 
-    jobDelete(req, res){
-        const id = req.params.id
-        data = data.filter(job =>
-            Number(id) !== Number(services.idCalculator(job))
-        )
+    async jobDelete(req, res){
+        
+        await data.delete(req.params.id)
+
         res.redirect("/")
     }
-
 
 
 }

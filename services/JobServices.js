@@ -1,5 +1,3 @@
-const JobsData = require("../models/jobs")
-
 module.exports = {
     tempoRestante(job){
 
@@ -18,12 +16,8 @@ module.exports = {
 
     valorDoProjeto(valorDaHora, totalDeHoras){
         const valorDoProjeto = (valorDaHora * totalDeHoras).toFixed(2).replace(".",",")
-
         return valorDoProjeto
     },
 
-    idCalculator(job){
-        const id = (Number(JobsData.indexOf(job))+ 1)
-        return id
-    }
+    
 }

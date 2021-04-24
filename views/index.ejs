@@ -30,10 +30,26 @@
         <section id="top" class="animate-up">
           <h2 class="sr-only">Homepage</h2>
           <img id="logo" src="/images/logo.svg" alt="Logo" />
+
+        
+          <% if( situaçao[3] == 1) {%>
           <span id="notification">
             <img src="/images/alert-octagon.svg" alt="Alerta" />
-            Você tem 2 horas livres no seu dia
+            Você tem  <%= situaçao[3] %>  hora livres no seu dia
           </span>
+          <% } if ( situaçao[3] > 1){%>
+            <span id="notification">
+              <img src="/images/alert-octagon.svg" alt="Alerta" />
+              Você tem  <%= situaçao[3] %>  horas livre no seu dia
+            </span>
+            <% } if ( situaçao[3] <= 0) {%> 
+              <span id="notification">
+              <img src="/images/alert-octagon.svg" alt="Alerta" />
+                Você não tem horas livres no seu dia 
+            </span>
+            <% } %> 
+
+
           <a href="/profile" id="avatar-profile">
             <p><%= profile.nome  %>  <span>Ver perfil</span></p>
             <img
@@ -49,15 +65,15 @@
 
           <div class="info">
             <div class="total">
-              <strong>12</strong>
+              <strong><%= situaçao[2]  %> </strong>
               Projetos ao total
             </div>
             <div class="in-progress">
-              <strong>7</strong>
+              <strong><%= situaçao[0] %> </strong>
               Em andamento
             </div>
             <div class="finished">
-              <strong>4</strong>
+              <strong><%= situaçao[1] %> </strong>
               Encerrados
             </div>
           </div>
@@ -137,7 +153,7 @@
         </footer>
       </div>
       <form 
-        method="post" 
+        method="POST" 
         action="" 
         id="delete-job"></form>
     </div>
